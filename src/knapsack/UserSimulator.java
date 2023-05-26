@@ -25,12 +25,15 @@ public class UserSimulator {
 	        int sum = 0;
 
 	        for (int i = 0; i < selected.length; i++) {
+	        	System.out.print("selected : "+selected[i]);
 	            if (selected[i].getValue() == 1) {
 	                sum += values[selected[i].getId() - 1];
 
 	            }
 	            
 	        }
+        	System.out.println();
+
             sumValues.put(iterationCount, sum);
 
 

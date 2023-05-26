@@ -95,7 +95,14 @@ public class knapsack {
             }
         });
         
-        
+        for (Map<Integer, Integer> solution : userSimulator.getPreviousSolutions()) {
+            BoolVar[] solutionVars = new BoolVar[selected.length];
+            for (int i = 0; i < selected.length; i++) {
+                solutionVars[i] = (BoolVar) selected[i].eq(solution.containsKey(i + 1) ? 1 : 0);
+            }
+            model.addClauses(LogOp.nand(solutionVars));
+            }
+    
      // Add the current solution as a constraint to avoid redundancy
        /* BoolVar[] solutionVars = new BoolVar[selected.length];
         for (int i = 0; i < selected.length; i++) {
@@ -105,7 +112,7 @@ public class knapsack {
 
 
   */
-    
+      
 
         // Display the sorted map entries
         System.out.println("the decreasing order set by the user is : ");
