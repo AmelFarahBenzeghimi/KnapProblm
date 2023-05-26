@@ -1,5 +1,7 @@
 package knapsack;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.chocosolver.solver.variables.BoolVar;
@@ -9,7 +11,7 @@ public class UserSimulator {
     Map<Integer, Integer> sumValues = new HashMap<>();
 
     
-    
+    private List<Map<Integer, Integer>> previousSolutions = new ArrayList<>();
     
 
     public UserSimulator() {
@@ -39,6 +41,15 @@ public class UserSimulator {
 
 	    public Map<Integer, Integer> getSumValuesMap() {
 	        return sumValues;
+	    }
+
+
+	    public void addPreviousSolution(Map<Integer, Integer> solution) {
+	        previousSolutions.add(solution);
+	    }
+
+	    public List<Map<Integer, Integer>> getPreviousSolutions() {
+	        return previousSolutions;
 	    }
 
 	        

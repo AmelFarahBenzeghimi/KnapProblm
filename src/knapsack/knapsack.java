@@ -10,6 +10,7 @@ import java.util.Map;
 import org.chocosolver.solver.Model;
 
 import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.nary.cnf.LogOp;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.search.strategy.strategy.*;
 
@@ -46,27 +47,46 @@ public class knapsack {
         
         // Create a solver
         Solver solver = model.getSolver();
-        solver.limitSolution(6);
-        int counter=0;
+        solver.limitSolution(10);
         
-        ArrayList<ArrayList<Integer>> arrayvalue1 = new ArrayList<>();
-
+        
+        int maxSolutions=10;
+        List<List<Integer>> userOrderList = new ArrayList<>(); // List to store user order
+        
+        
         // Solve the problem
         UserSimulator userSimulator = new UserSimulator();
+        int solutionsPerIteration=3;
+        
+        
+        while (maxSolutions > 0) {
+            for (int solutionCount = 0; solutionCount < solutionsPerIteration &&  solver.solve(); solutionCount++) {
 
-        while (solver.solve()) {
-        	counter++;
-            userSimulator.getvalue(selected, values);        
+                // Call the UserSimulator class after each solution
+                userSimulator.getvalue(selected, values);
 
-           userSimulator.getSumValuesMap();
+                // Retrieve and process the results from the UserSimulator class
+                Map<Integer, Integer> sumValuesMap = userSimulator.getSumValuesMap();
 
-           
-           
-        }
+                // Get the user order for the current solution
+                List<Integer> userOrder = new ArrayList<>(sumValuesMap.values());
+
+                // Add the user order to the list
+                userOrderList.add(userOrder);
+
+                // Clear the sumValues map for the next solution
+                //userSimulator.getSumValuesMap().clear();
+
+                maxSolutions--;
+            }
+
+
+       
         
         Map<Integer, Integer> sumValuesMap = userSimulator.getSumValuesMap();
 
         // Sort the map entries in decreasing order of sum values
+        
         List<Map.Entry<Integer, Integer>> sortedEntries = new ArrayList<>(sumValuesMap.entrySet());
         Collections.sort(sortedEntries, new Comparator<Map.Entry<Integer, Integer>>() {
             @Override
@@ -74,6 +94,18 @@ public class knapsack {
                 return entry2.getValue().compareTo(entry1.getValue());
             }
         });
+        
+        
+     // Add the current solution as a constraint to avoid redundancy
+       /* BoolVar[] solutionVars = new BoolVar[selected.length];
+        for (int i = 0; i < selected.length; i++) {
+            solutionVars[i] = (BoolVar) selected[i].eq(sumValuesMap.containsKey(i + 1) ? 1 : 0);
+        }
+        model.addClauses(LogOp.or(solutionVars));
+
+
+  */
+    
 
         // Display the sorted map entries
         System.out.println("the decreasing order set by the user is : ");
@@ -81,13 +113,15 @@ public class knapsack {
             Map.Entry<Integer, Integer> entry = sortedEntries.get(i);
 
             int iteration = entry.getKey();
-            int sum = entry.getValue();
             System.out.print("solution " + iteration   );
             if (i < sortedEntries.size() - 1) {
                 System.out.print(" > ");
             }
         }
+        System.out.println();
+
 
     }
+}
 }
 
