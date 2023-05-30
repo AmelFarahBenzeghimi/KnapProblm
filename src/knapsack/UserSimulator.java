@@ -9,52 +9,68 @@ import org.chocosolver.solver.variables.BoolVar;
 public class UserSimulator {
     private static int iterationCount = 0;
     Map<Integer, Integer> sumValues = new HashMap<>();
-
+    List<Map.Entry<Integer, Integer>> sortedEntries = new ArrayList<>();
+    int ksol;
     
-    private List<Map<Integer, Integer>> previousSolutions = new ArrayList<>();
     
 
-    public UserSimulator() {
-        // Empty constructor
+    public UserSimulator(int ksol) {
+    	this.ksol=ksol;
     }
 
 	    
-	    public void getvalue(BoolVar[] selected, int[] values) {
-	        iterationCount++;
+    public void getvalue(BoolVar[] selected, int[] values) {
+        iterationCount++;
 
-	        int sum = 0;
+        int sum = 0;
 
-	        for (int i = 0; i < selected.length; i++) {
-	        	System.out.print("selected : "+selected[i]);
-	            if (selected[i].getValue() == 1) {
-	                sum += values[selected[i].getId() - 1];
+        for (int i = 0; i < selected.length; i++) {
+            if (selected[i].getValue() == 1) {
+                sum += values[selected[i].getId() - 1];
+                System.out.print("sum of selected item  : "+sum);
 
-	            }
-	            
-	        }
-        	System.out.println();
+            }
+            
+        }
+    	System.out.println();
 
-            sumValues.put(iterationCount, sum);
+        sumValues.put(iterationCount, sum);
 
 
-	        
-	    }
+        
+    }
 
 	    
 
-	    public Map<Integer, Integer> getSumValuesMap() {
-	        return sumValues;
-	    }
+	   
+
+    public Map<Integer, Integer> getSumValuesMap() {
+        return sumValues;
+    }
 
 
-	    public void addPreviousSolution(Map<Integer, Integer> solution) {
-	        previousSolutions.add(solution);
-	    }
-
-	    public List<Map<Integer, Integer>> getPreviousSolutions() {
-	        return previousSolutions;
-	    }
-
-	        
 	    
-	}
+	    
+	    
+	  
+    
+    public void displaySortedEntries() {
+        System.out.println("sumValues : " +sumValues);
+    }
+    
+    
+    public void displaysortedsolutions(){
+        System.out.println("Solution ordeddddd" );
+
+               List<Map.Entry<Integer, Integer>> sortedEntries = new ArrayList<>(sumValues.entrySet());
+               sortedEntries.sort(Map.Entry.comparingByValue());
+
+               for (Map.Entry<Integer, Integer> entry : sortedEntries) {
+                   System.out.println("solkey " + entry.getKey() + ": " + entry.getValue());
+               }
+           
+       }
+    
+}
+
+
