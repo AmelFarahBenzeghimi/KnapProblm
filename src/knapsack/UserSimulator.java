@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
 
 public class UserSimulator {
     private static int iterationCount = 0;
@@ -14,12 +14,11 @@ public class UserSimulator {
     
     
 
-    public UserSimulator(int ksol) {
-    	this.ksol=ksol;
+    public UserSimulator() {
     }
 
 	    
-    public void getvalue(BoolVar[] selected, int[] values) {
+    public void getvalue(IntVar[] selected, int[] values) {
         iterationCount++;
 
         int sum = 0;
@@ -27,15 +26,16 @@ public class UserSimulator {
         for (int i = 0; i < selected.length; i++) {
             if (selected[i].getValue() == 1) {
                 sum += values[selected[i].getId() - 1];
-                System.out.print("sum of selected item  : "+sum);
 
             }
+            sumValues.put(iterationCount, sum);
+
             
         }
     	System.out.println();
 
-        sumValues.put(iterationCount, sum);
 
+    	//System.out.println("sumvalue"+sumValues);
 
         
     }
@@ -55,13 +55,12 @@ public class UserSimulator {
 	  
     
     public void displaySortedEntries() {
-        System.out.println("sumValues : " +sumValues);
+        //System.out.println("sumValues : " +sumValues);
     }
     
     
-    public void displaysortedsolutions(){
-        System.out.println("Solution ordeddddd" );
-
+    public void displaysortedsolutions( ){
+        System.out.println("Solution orded" );
                List<Map.Entry<Integer, Integer>> sortedEntries = new ArrayList<>(sumValues.entrySet());
                sortedEntries.sort(Map.Entry.comparingByValue());
 

@@ -6,7 +6,7 @@ package knapsack;
 	    private int solCounter = 1;
 
 	    private GenearetSol generator = new GenearetSol(k);
-	    private UserSimulator userSimulator = new UserSimulator(k);
+	   // private UserSimulator userSimulator = new UserSimulator(k);
 	    
 	    public IterationHandler(int maxSol){
 	    	

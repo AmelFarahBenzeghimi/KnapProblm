@@ -7,42 +7,56 @@ public class knapsack {
 	
 	
     public static void main(String[] args) {
-    	int k =6;
+    	int k =3;
         int maxSol=18;
-        int counter=0;
-        GenearetSol generator = new GenearetSol(k);
-        //generator.generateSolutions();
-        UserSimulator userSimulator= new UserSimulator(k);
+        int num_iteration=0;
+        
+        int[] values = {4, 2, 7, 1, 5,2,8,7,11,22,3,17,8}; // Values of the items
+        int[] weights = {2, 1, 6, 2, 4,1,8,6,5,4,3,11,10}; // Weights of the items
+        int capacity = 20; // Knapsack capacity
+        
 
-        // for the first k solutions 
+        ProblemFormulation problem = new ProblemFormulation(values, weights, capacity);
         
-        generator.generateSolutions(userSimulator);
+          UserSimulator userSimulator= new UserSimulator();
+           
         
-        
-        
-        
-	      userSimulator.displaySortedEntries();
+        problem.solve();
+        problem.displayoredreuser();
 
-       userSimulator.displaysortedsolutions();
+       
+        userSimulator.getSumValuesMap();
+        num_iteration=k;
+        int iter=0;
+
+        while(num_iteration<maxSol) {
+        	iter++;
+        	num_iteration+=k;
+            System.out.println("ietartion solve number   "+iter);
+            
+            ProblemFormulation problem2 = new ProblemFormulation(values, weights, capacity);
+
+
+        problem2.solve();
+
+           problem2.displayoredreuser();
+        }
+
+        
+	   
        
        
-       
-       while(counter<=maxSol) {
-    	   counter=counter+k;
-    	   generator.generateSolutions(userSimulator);
+    	 
            
            
            
-           
- 	   // userSimulator.displaySortedEntries();
-
-        userSimulator.displaysortedsolutions();
+ 	   
         
         
     	   
     	   
     	   
-       }
+    } 
        
 //	IterationHandler hd=new IterationHandler(maxSol);
 	
@@ -76,7 +90,7 @@ public class knapsack {
        
         
       
-    }
+    
     
 
 

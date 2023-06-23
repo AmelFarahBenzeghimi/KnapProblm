@@ -5,93 +5,214 @@ import java.util.ArrayList;
 
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.nary.cnf.LogOp;
-import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.constraints.extension.Tuples;
+import org.chocosolver.solver.variables.IntVar;
 
+ 
 public class ProblemFormulation {
-	int[] values = {4, 2, 7, 1, 5}; // Values of the items
-    int[] weights = {2, 1, 3, 2, 4}; // Weights of the items
-    int capacity = 7; // Knapsack capacity
+	
 
     private int numItems;
     private Model model;
-    private BoolVar[] selected;
-
-    private List<BoolVar[]> previousSolutions=new ArrayList<>();
-
-
+    private IntVar[] selected;
+    private int []values;
+    private static List<List<Integer>> previousSolutions = new ArrayList<>();	
+	
+    UserSimulator userSimulator= new UserSimulator();
+    
+    static {
+        previousSolutions.clear(); 
+    }
 
 	public  ProblemFormulation(int[] values, int[] weights, int capacity) {
-        this.values = values;
-        this.weights = weights;
-        this.capacity = capacity;
+     
         this.numItems = values.length;
+        this.values=values;
         
-        this.previousSolutions = new ArrayList<>(); // Initialize the list
+      // this.previousSolutions = new ArrayList<>(); // Initialize the list
         // Create a model
         this.model = new Model("Knapsack Problem");
 
-        // Create decision variables: 0/1 variables indicating whether an item is selected or not
-        this.selected = model.boolVarArray(numItems);
+        this.selected = new IntVar[numItems];
+        for (int i = 0; i < numItems; i++) {
+            selected[i] = model.intVar("item_" + (i+1), 0, 1); 
+            
+        }
+
 
         // Constraint: total weight should be less than or equal to the capacity
         model.scalar(selected, weights, "<=", capacity).post();
+       
         
     }
 
     
 
-    public BoolVar[] getSelected() {
+    public IntVar[] getSelected() {
         return selected;
     }
+    
     public void solve() {
-    	BoolVar[] solution = selected.clone();
+    	Model upModel =updateModel(model,getSelected(),previousSolutions);
+    	
 
-        forbiddenSolutions(solution);
-    	// Create a solver
-        Solver solver = model.getSolver();
-      //  forbiddenSolutions();
+    	CustumStrategy strat=new CustumStrategy();
+    	
+    	
+     // Solve the model
+      Solver solver=upModel.getSolver();
+      
+       solver.setSearch(strat.CustumStrategy(selected));
 
-        // Solve the model
-        solver.solve();
+        
+		solver.limitSolution(5);
 
-        // Store the current solution
+		
+
+   	while(solver.solve()) {
+   		recordSol(solver,selected);
+   		System.out.println("Solution found solvermethod");
+   		for(int i=0;i<selected.length;i++) {
+
+   		System.out.print(" "+selected[i].getValue());
+
+   	}
+   	}
+        
        
-        // Call the method displaySol
-       displaySol(solver);
-    	
+
+
+
+     
     }
     
-    private void forbiddenSolutions(BoolVar[] solution) {
-        for (BoolVar[] prevSolution : previousSolutions) {
-            BoolVar[] negatedSolution = new BoolVar[prevSolution.length];
-            for (int i = 0; i < prevSolution.length; i++) {
-                negatedSolution[i] = prevSolution[i].not();
+    
+    
+    private static Tuples forbiddenSolutions(List<List<Integer>> selected2) {
+    	Tuples tuple=new Tuples(false);
+
+        System.out.print("selected2 "+selected2);
+    	int i=0;
+        for (List<Integer> currentSolution2 : selected2) {
+            int []t1=new int[currentSolution2.size()] ;
+
+            for (int  value : currentSolution2) {
+            	if(i<currentSolution2.size()) {
+                System.out.print("i "+i);
+
+        	 t1[i]=value;
+        	i=i+1;
+            	}
+                
+                
+                
+                
             }
-            model.addClauses(LogOp.or(negatedSolution));
+        tuple.add(t1);
+        
         }
+    		
+	        
+
+    		
+	    	
+    	
+    	
+    	
+    	        return tuple;
     }
 
     
+    
+    public Model updateModel(Model model, IntVar [] selected, List<List<Integer>> previousSolutions)
+    {
+    	if(previousSolutions.size()!=0) {
+	        System.out.println("updatemodel");
 
-
-	//dispaly one solution found
-    public void displaySol(Solver solver) {
-    	if(solver.solve()) {
-    	for( int i=0;i<selected.length;i++) {
+    	Constraint tableConstraint = model.table(selected, forbiddenSolutions(previousSolutions));
+    	model.post(tableConstraint);
+    	
+    	}
+    	
+    	return model;
     	
     	
-            System.out.println("item "+(i+1)+"  is " +selected[i].getValue());
+    }
+    
+    
+    public void solvermethod(Model model) {
+		System.out.println("inside solvermethod");
+
+
+    	Solver solve=model.getSolver();
+ 		solve.limitSolution(5);
+
+		
+
+    	while(solve.solve()) {
+    		System.out.println("Solution found solvermethod");
+    		for(int i=0;i<selected.length;i++) {
+
+    		System.out.print(" "+selected[i].getValue());
 
     	}
+    	}
     }
-}
     
-    public void custumzedstrategy() {
+    
+    
+    
+    
+
+
+    public void displaySol(Solver solver, IntVar []selected) {
+		System.out.println(" :");
     	
     	
+
+    	for( int i=0;i<selected.length;i++) {
+
+    	
+    		System.out.printf(" "+selected[i].getValue()," ");
+    		
+    	}
+    	System.out.println();
+    
+}
+    public void recordSol(Solver solver, IntVar[] solution) {
+    	
+
+			userSimulator.getvalue(getSelected(), values);
+
+
+    		List<Integer> currentSolution = new ArrayList<>();
+    		currentSolution.clear();
+        	for( int i=0;i<solution.length;i++) {
+        		currentSolution.add(solution[i].getValue());
+        		
+
+        	}
+        	previousSolutions.add(currentSolution);
+
+             System.out.println("previousSolutions "+previousSolutions);
+
+             System.out.println("previousSolutions "+previousSolutions.size());
+
+    	
+    	
+    	
+        }
+    
+    
+    public void displayoredreuser() {
+    	
+    	userSimulator.displaysortedsolutions();
     	
     	
     }
+    	
+    	
+    
     
 }
